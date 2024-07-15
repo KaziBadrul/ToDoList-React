@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -10,12 +10,34 @@ import { TodoList } from './components/TodoList'
 function App() {
   
   const [todos, setTodos] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const count = todos.length;
 
   const deleteTodo = (i) => {
     const newTodos = todos.filter((_, index) => index !== i);
     setTodos(newTodos);
   }
+
+  useEffect(() => {
+    if (!isLoaded) {
+      const localTodos = localStorage.getItem("todos");
+      if (localTodos) {
+        const parsedTodos = JSON.parse(localTodos).map(todo => (
+          {...todo,
+          date: new Date(todo.date)}
+        ));
+        setTodos(parsedTodos);
+      }
+      setIsLoaded(true);
+    }
+  }, [isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+  }, [todos, isLoaded]);
+
 
   return (
     <>
